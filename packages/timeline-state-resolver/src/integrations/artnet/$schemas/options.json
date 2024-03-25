@@ -1,0 +1,32 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ArtNet Options",
+    "type": "object",
+    "properties": {
+        "host": {
+            "type": "string",
+            "ui:title": "Host",
+            "default": "127.0.0.1"
+        },
+        "mode": {
+            "type": "string",
+            "ui:title": "Transmission Mode",
+            "ui:description": "Use Full or Partial transmission mode",
+            "ui:summaryTitle": "Transmission Mode",
+            "enum": ["full", "partial"],
+            "tsEnumNames": ["FULL", "PARTIAL"],
+            "default": "full"
+        },
+        "fps": {
+            "type": "integer",
+            "ui:title": "Refresh Rate",
+            "ui:description": "Art Net universe fps",
+            "ui:summaryTitle": "Refresh Rate",
+            "default": 44,
+            "min": 1,
+            "max": 120
+        }
+    },
+    "required": ["host", "mode", "fps"],
+    "additionalProperties": false
+}
