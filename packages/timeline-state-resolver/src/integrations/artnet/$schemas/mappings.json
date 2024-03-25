@@ -1,0 +1,22 @@
+{
+	"$schema": "../../../$schemas/mapping-schema.json",
+	"default": "group",
+	"mappings": {
+		"group": {
+			"type": "object",
+			"properties": {
+                "universe": {
+                    "type": "integer",
+                    "ui:title": "Universe",
+                    "ui:description": "The artnet universe to output to (0-32767)",
+                    "ui:summaryTitle": "Universe",
+                    "default": 0,
+                    "min": 0,
+                    "max": 32767
+                }
+			},
+			"required": ["size", "channels"],
+			"additionalProperties": false
+		}
+	}
+}
