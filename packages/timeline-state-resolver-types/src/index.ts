@@ -23,6 +23,7 @@ import { TimelineContentSingularLiveAny } from './integrations/singularLive'
 import { TimelineContentVMixAny } from './integrations/vmix'
 import { TimelineContentOBSAny } from './integrations/obs'
 import { TimelineContentTriCasterAny } from './integrations/tricaster'
+import { TimelineContentArtNetAny } from './integrations/artnet'
 
 export * from './integrations/abstract'
 export * from './integrations/atem'
@@ -45,6 +46,7 @@ export * from './integrations/obs'
 export * from './integrations/tricaster'
 export * from './integrations/telemetrics'
 export * from './integrations/multiOsc'
+export * from './integrations/artnet'
 
 export * from './device'
 export * from './mapping'
@@ -86,6 +88,7 @@ export enum DeviceType {
 	TELEMETRICS = 'TELEMETRICS',
 	TRICASTER = 'TRICASTER',
 	MULTI_OSC = 'MULTI_OSC',
+	ARTNET = 'ARTNET',
 }
 
 export interface TSRTimelineKeyframe<TContent> extends Omit<Timeline.TimelineKeyframe, 'content'> {
@@ -147,6 +150,7 @@ export type TSRTimelineContent =
 	| TimelineContentVIZMSEAny
 	| TimelineContentTelemetricsAny
 	| TimelineContentTriCasterAny
+	| TimelineContentArtNetAny
 
 /**
  * A simple key value store that can be referred to from the timeline objects
