@@ -2,6 +2,8 @@ import { DeviceType, TSRActionSchema } from 'timeline-state-resolver-types'
 import AbstractActions = require('./$schemas/generated/abstract/actions.json')
 import AbstractOptions = require('./$schemas/generated/abstract/options.json')
 import AbstractMappings = require('./$schemas/generated/abstract/mappings.json')
+import ArtNetOptions = require('./$schemas/generated/artnet/mappings.json')
+import ArtNetMappings = require('./$schemas/generated/artnet/mappings.json')
 import AtemActions = require('./$schemas/generated/atem/actions.json')
 import AtemOptions = require('./$schemas/generated/atem/options.json')
 import AtemMappings = require('./$schemas/generated/atem/mappings.json')
@@ -90,6 +92,11 @@ export const manifest: TSRManifest = {
 			actions: AbstractActions.actions.map(stringifyActionSchema),
 			configSchema: JSON.stringify(AbstractOptions),
 			mappingsSchemas: stringifyMappingSchema(AbstractMappings),
+		},
+		[DeviceType.ARTNET]: {
+			displayName: generateTranslation('ArtNet'),
+			configSchema: JSON.stringify(ArtNetOptions),
+			mappingsSchemas: stringifyMappingSchema(ArtNetMappings),
 		},
 		[DeviceType.ATEM]: {
 			displayName: generateTranslation('Blackmagic ATEM'),
