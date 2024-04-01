@@ -1,8 +1,8 @@
 {
 	"$schema": "../../../$schemas/mapping-schema.json",
-	"default": "group",
+	"default": "universe",
 	"mappings": {
-		"group": {
+		"universe": {
 			"type": "object",
 			"properties": {
                 "universe": {
@@ -15,7 +15,7 @@
                     "max": 32767
                 }
 			},
-			"required": ["size", "channels"],
+			"required": ["universe"],
 			"additionalProperties": false
 		}
 	}
