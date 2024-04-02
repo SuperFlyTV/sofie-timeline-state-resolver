@@ -11,7 +11,7 @@
         "mode": {
             "type": "string",
             "ui:title": "Transmission Mode",
-            "ui:description": "Use Full or Partial transmission mode",
+            "ui:description": "Use Full or Partial transmission mode. Partial mode updates only changed values other than keyframes, reducing network traffic.",
             "ui:summaryTitle": "Transmission Mode",
             "enum": ["full", "partial"],
             "tsEnumNames": ["FULL", "PARTIAL"],
@@ -27,6 +27,6 @@
             "max": 120
         }
     },
-    "required": ["host", "mode", "fps"],
+    "required": ["host"],
     "additionalProperties": false
 }

@@ -1,0 +1,24 @@
+notes
+
+additional json for building channel groups
+wont be included yet due to complexity relating to ui experience
+
+
+				"size": {
+					"type": "integer",
+					"ui:title": "Size",
+					"ui:description": "The number of channels to be included",
+					"ui:summaryTitle": "Group Size",
+					"default": 1,
+					"min": 1,
+                    "max": 512
+				},
+				"channels": {
+					"type": "string",
+					"ui:title": "Channels",
+					"ui:description": "comma separated list of channels to use",
+					"ui:summaryTitle": "Channel List",
+					"default": 1,
+					"min": 1,
+                    "max": 512
+				}

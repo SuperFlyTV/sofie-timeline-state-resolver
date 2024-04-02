@@ -9,6 +9,9 @@ export * from './action-schema'
 export * from './abstract'
 import { SomeMappingAbstract } from './abstract'
 
+export * from './artnet'
+import { SomeMappingArtnet } from './artnet'
+
 export * from './atem'
 import { SomeMappingAtem } from './atem'
 
@@ -74,6 +77,7 @@ import { SomeMappingVmix } from './vmix'
 
 export type TSRMappingOptions =
 	| SomeMappingAbstract
+	| SomeMappingArtnet
 	| SomeMappingAtem
 	| SomeMappingCasparCG
 	| SomeMappingHttpSend
