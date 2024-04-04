@@ -1,22 +1,35 @@
 {
 	"$schema": "../../../$schemas/mapping-schema.json",
-	"default": "universe",
+	"default": "mappings",
 	"mappings": {
 		"universe": {
 			"type": "object",
 			"properties": {
-                "universe": {
-                    "type": "integer",
-                    "ui:title": "Universe",
-                    "ui:description": "The artnet universe to output to (0-32767)",
-                    "ui:summaryTitle": "Universe",
-                    "default": 0,
-                    "min": 0,
-                    "max": 32767
-                }
+				"universe": {
+					"type": "integer",
+					"ui:title": "Universe",
+					"ui:description": "The artnet universe to output to (0-32767)",
+					"ui:summaryTitle": "Universe",
+					"default": 0,
+					"min": 0,
+					"max": 32767
+				}
 			},
 			"required": ["universe"],
 			"additionalProperties": false
+		},
+		"profileMappings": {
+			"type": "object",
+			"properties": {
+				"ID": {
+					"type": "string"
+				},
+				"channels": {
+					"type": "string"
+				}
+			},
+			"required": ["ID", "channels"],
+			"additionalProperties": true
 		}
 	}
 }

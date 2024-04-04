@@ -7,8 +7,11 @@
 
 export interface ArtNetOptions {
 	host: string
-	mode: Mode
-	fps: number
+	mode?: Mode
+	fps?: number
+	channelBehavious?: {
+		[k: string]: unknown
+	}
 }
 
 export enum Mode {
@@ -21,8 +24,16 @@ export interface MappingArtnetUniverse {
 	mappingType: MappingArtnetType.Universe
 }
 
-export enum MappingArtnetType {
-	Universe = 'universe',
+export interface MappingArtnetProfileMappings {
+	ID: string
+	channels: string
+	mappingType: MappingArtnetType.ProfileMappings
+	[k: string]: unknown
 }
 
-export type SomeMappingArtnet = MappingArtnetUniverse
+export enum MappingArtnetType {
+	Universe = 'universe',
+	ProfileMappings = 'profileMappings',
+}
+
+export type SomeMappingArtnet = MappingArtnetUniverse | MappingArtnetProfileMappings

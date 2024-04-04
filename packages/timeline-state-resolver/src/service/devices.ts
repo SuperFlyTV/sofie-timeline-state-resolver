@@ -12,6 +12,7 @@ import { HyperdeckDevice } from '../integrations/hyperdeck'
 import { OBSDevice } from '../integrations/obs'
 import { PanasonicPtzDevice } from '../integrations/panasonicPTZ'
 import { LawoDevice } from '../integrations/lawo'
+import { ArtNetDevice } from '../integrations/artnet'
 
 export interface DeviceEntry {
 	deviceClass: new (context: DeviceContextAPI<any>) => Device<any, any, any>
@@ -22,6 +23,7 @@ export interface DeviceEntry {
 
 export type ImplementedServiceDeviceTypes =
 	| DeviceType.ABSTRACT
+	| DeviceType.ARTNET
 	| DeviceType.ATEM
 	| DeviceType.HTTPSEND
 	| DeviceType.HTTPWATCHER
@@ -40,6 +42,12 @@ export const DevicesDict: Record<ImplementedServiceDeviceTypes, DeviceEntry> = {
 		deviceClass: AbstractDevice,
 		canConnect: false,
 		deviceName: (deviceId: string) => 'Abstract ' + deviceId,
+		executionMode: () => 'salvo',
+	},
+	[DeviceType.ARTNET]: {
+		deviceClass: ArtNetDevice,
+		canConnect: false,
+		deviceName: (deviceId: string) => 'ArtNet ' + deviceId,
 		executionMode: () => 'salvo',
 	},
 	[DeviceType.ATEM]: {

@@ -21,13 +21,23 @@ export enum TimelineContentTypeArtNet {
 export interface TimelineContentArtNet {
 	deviceType: DeviceType.ARTNET
 	type: TimelineContentTypeArtNet
-    channel: number
-    value: number
-    trasition?: {
-        duration: number,
-        type: ArtNetEasingType,
-        direction: 'In' | 'Out' | 'InOut' | 'None'
-    }
+	channel: number
+	value: number
+	trasition?: {
+		duration: number,
+		type: ArtNetEasingType,
+		direction: 'In' | 'Out' | 'InOut' | 'None'
+	}
+}
+
+export interface ArtNetDeviceCommand {
+	channel: number
+	value: number
+}
+
+export interface ArtNetCommandContent {
+	ID: string
+	values: number | Array<number>
 }
 
 export type TimelineContentArtNetAny = TimelineContentArtNet

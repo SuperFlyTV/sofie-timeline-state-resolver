@@ -33,6 +33,7 @@ import {
 	DeviceOptionsHyperdeck,
 	DeviceOptionsPanasonicPTZ,
 	DeviceOptionsLawo,
+	DeviceOptionsArtNet,
 } from 'timeline-state-resolver-types'
 
 import { DoOnTime } from './devices/doOnTime'
@@ -592,6 +593,7 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 					threadedClassOptions
 				)
 			case DeviceType.ABSTRACT:
+			case DeviceType.ARTNET:
 			case DeviceType.ATEM:
 			case DeviceType.HTTPSEND:
 			case DeviceType.HTTPWATCHER:
@@ -1527,6 +1529,7 @@ export type DeviceOptionsAnyInternal =
 	| DeviceOptionsTelemetrics
 	| DeviceOptionsTriCasterInternal
 	| DeviceOptionsMultiOSC
+	| DeviceOptionsArtNet
 
 function removeParentFromState(
 	o: Timeline.TimelineState<TSRTimelineContent>

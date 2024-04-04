@@ -1,7 +1,9 @@
 import {
-	DeviceType,
-	TimelineContentTypeCasparCg,
-	TimelineContentCCGMedia,
+	// DeviceType,
+	// TimelineContentTypeCasparCg,
+	// TimelineContentCCGMedia,
+	TimelineContentArtNetAny,
+	TimelineContentArtNetValues,
 	TSRTimelineObj,
 } from 'timeline-state-resolver'
 import { TSRInput } from '../src'
@@ -10,7 +12,7 @@ import { literal } from 'timeline-state-resolver/dist/lib'
 export const input: TSRInput = {
 	timeline: [
 
-		literal<TSRTimelineObj<TimelineContentArtNetValues>>({
+		literal<TSRTimelineObj<TimelineContentArtNetAny>>({
 			id: 'artnet0',
 			enable: {
 				start: Date.now(),
@@ -18,7 +20,7 @@ export const input: TSRInput = {
 			},
 			layer: 'dimmer00',
 			content: {
-                values: {
+				values: {
 					dimmer: 255
 				}
 			}
@@ -102,66 +104,60 @@ export const input: TSRInput = {
 					everything: 255
 				}
 			}
-		})
-		
-	
-
-
-
-
-		
-		literal<TSRTimelineObj<TimelineContentCCGMedia>>({
-			id: 'video0',
-			enable: {
-				start: Date.now(),
-				duration: 20 * 1000,
-			},
-			layer: 'casparLayer0',
-			content: {
-				deviceType: DeviceType.CASPARCG,
-				type: TimelineContentTypeCasparCg.MEDIA,
-				file: 'amb.mp4',
-				mixer: {
-					rotation: 0,
-					// anchor: {
-					// 	x: 0.5,
-					// 	y: 0.5,
-					// },
-					fill: {
-						x: 0.5,
-						y: 0.5,
-						xScale: 0.7,
-						yScale: 1,
-					},
-				},
-
-				// $references: {
-				// 	'mixer.fill.xScale': {
-				// 		// Local path to overwrite
-				// 		datastoreKey: 'scale', // Reference key in datastore
-				// 		overwrite: false,
-				// 	},
-				// 	'mixer.fill.yScale': {
-				// 		// Local path to overwrite
-				// 		datastoreKey: 'scale', // Reference key in datastore
-				// 		overwrite: false,
-				// 	},
-				// },
-			},
-			keyframes: [
-				{
-					id: 'kf0',
-					enable: {
-						while: true,
-						// start: '#video0.start + 10',
-					},
-					content: {
-						mixer: {
-							rotation: 90
-						}
-					}
-				}
-			]
 		}),
+		
+		// literal<TSRTimelineObj<TimelineContentCCGMedia>>({
+		// 	id: 'video0',
+		// 	enable: {
+		// 		start: Date.now(),
+		// 		duration: 20 * 1000,
+		// 	},
+		// 	layer: 'casparLayer0',
+		// 	content: {
+		// 		deviceType: DeviceType.CASPARCG,
+		// 		type: TimelineContentTypeCasparCg.MEDIA,
+		// 		file: 'amb.mp4',
+		// 		mixer: {
+		// 			rotation: 0,
+		// 			// anchor: {
+		// 			// 	x: 0.5,
+		// 			// 	y: 0.5,
+		// 			// },
+		// 			fill: {
+		// 				x: 0.5,
+		// 				y: 0.5,
+		// 				xScale: 0.7,
+		// 				yScale: 1,
+		// 			},
+		// 		},
+
+		// 		// $references: {
+		// 		// 	'mixer.fill.xScale': {
+		// 		// 		// Local path to overwrite
+		// 		// 		datastoreKey: 'scale', // Reference key in datastore
+		// 		// 		overwrite: false,
+		// 		// 	},
+		// 		// 	'mixer.fill.yScale': {
+		// 		// 		// Local path to overwrite
+		// 		// 		datastoreKey: 'scale', // Reference key in datastore
+		// 		// 		overwrite: false,
+		// 		// 	},
+		// 		// },
+		// 	},
+		// 	keyframes: [
+		// 		{
+		// 			id: 'kf0',
+		// 			enable: {
+		// 				while: true,
+		// 				// start: '#video0.start + 10',
+		// 			},
+		// 			content: {
+		// 				mixer: {
+		// 					rotation: 90
+		// 				}
+		// 			}
+		// 		}
+		// 	]
+		// }),
 	],
 }
