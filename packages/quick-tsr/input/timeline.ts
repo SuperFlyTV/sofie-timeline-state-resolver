@@ -1,9 +1,10 @@
 import {
+	DeviceType,
 	// DeviceType,
 	// TimelineContentTypeCasparCg,
 	// TimelineContentCCGMedia,
 	TimelineContentArtNetAny,
-	TimelineContentArtNetValues,
+	TimelineContentTypeArtNet,
 	TSRTimelineObj,
 } from 'timeline-state-resolver'
 import { TSRInput } from '../src'
@@ -13,98 +14,122 @@ export const input: TSRInput = {
 	timeline: [
 
 		literal<TSRTimelineObj<TimelineContentArtNetAny>>({
-			id: 'artnet0',
+			id: 'grey',
 			enable: {
 				start: Date.now(),
 				duration: 20 * 1000
 			},
-			layer: 'dimmer00',
+			layer: 'dimmer0',
 			content: {
+				deviceType: DeviceType.ARTNET,
+				type: TimelineContentTypeArtNet.VALUES,
+				values: {
+					dimmer: 42
+				}
+			}
+		}),
+		literal<TSRTimelineObj<TimelineContentArtNetAny>>({
+			id: 'white',
+			enable: {
+				start: Date.now() + 1000,
+				duration: 20 * 1000
+			},
+			layer: 'dimmer0',
+			content: {
+				deviceType: DeviceType.ARTNET,
+				type: TimelineContentTypeArtNet.VALUES,
 				values: {
 					dimmer: 255
 				}
 			}
 		}),
-		literal<TSRTimelineObj<TimelineContentArtNetValues>>({
-			id: 'artnet0',
-			enable: {
-				start: Date.now(),
-				duration: 20 * 1000
-			},
-			layer: 'rgb0',
-			content: {
-				values: {
-					// Sets an RGB value:
-					// rgb: [ 255, 127, 0 ]
+		// literal<TSRTimelineObj<TimelineContentArtNetAny>>({
+		// 	id: 'artnet11',
+		// 	enable: {
+		// 		start: Date.now(),
+		// 		duration: 20 * 1000
+		// 	},
+		// 	layer: 'rgb0',
+		// 	content: {
+		// 		deviceType: DeviceType.ARTNET,
+		// 		type: TimelineContentTypeArtNet.VALUES,
+		// 		values: {
+		// 			// Sets an RGB value:
+		// 			rgb: [ 255, 127, 0 ]
 					
-					// Defaults to [255, 255, 255] (special case: uses the value for all)
-					// rgb: 255
+		// 			// Defaults to [255, 255, 255] (special case: uses the value for all)
+		// 			// rgb: 255
 	
-					// Defaults to [ 127, 255, 0 ] (underfill: extend with zeros)
-					// rgb: [ 127, 255 ]
+		// 			// Defaults to [ 127, 255, 0 ] (underfill: extend with zeros)
+		// 			// rgb: [ 127, 255 ]
 					
-					// Defaults to [ 127, 255, 209 ] (overfill: just cap and discard the unused values)
-					// rgb: [ 127, 255, 209, 52 ]
-				}
-			}
-		}),
-		literal<TSRTimelineObj<TimelineContentArtNetValues>>({
-			id: 'myRGBLight0',
-			enable: {
-				start: Date.now(),
-				duration: 20 * 1000
-			},
-			layer: 'rgb0',
-			content: {
-				values: {
-					dimmer: 255,
-					rgb: [ 255, 127, 0 ]
-				}
-			},
-			// keyframes: [
-			// 	{
-			// 		id: 'kf0',
-			// 		enable: {
+		// 			// Defaults to [ 127, 255, 209 ] (overfill: just cap and discard the unused values)
+		// 			// rgb: [ 127, 255, 209, 52 ]
+		// 		}
+		// 	}
+		// }),
+		// literal<TSRTimelineObj<TimelineContentArtNetAny>>({
+		// 	id: 'myRGBLight0',
+		// 	enable: {
+		// 		start: Date.now(),
+		// 		duration: 20 * 1000
+		// 	},
+		// 	layer: 'rgb0',
+		// 	content: {
+		// 		deviceType: DeviceType.ARTNET,
+		// 		type: TimelineContentTypeArtNet.VALUES,
+		// 		values: {
+		// 			dimmer: 255,
+		// 			rgb: [ 255, 127, 0 ]
+		// 		}
+		// 	},
+		// 	// keyframes: [
+		// 	// 	{
+		// 	// 		id: 'kf0',
+		// 	// 		enable: {
 						
-			// 			start: '#myRGBLight0.start + 10',
-			// 		},
-			// 		content: {
-			// 			values: {
-			// 				dimmer: 127
-			// 			}
-			// 		}
-			// 	}
-			// ]
-		}),
-		literal<TSRTimelineObj<TimelineContentArtNetValues>>({
-			id: 'artnet0',
-			enable: {
-				start: Date.now(),
-				duration: 20 * 1000
-			},
-			layer: 'rgb0',
-			content: {
-
-				values: {
-					dimmers: 255
-				}
+		// 	// 			start: '#myRGBLight0.start + 10',
+		// 	// 		},
+		// 	// 		content: {
+		// 	// 			values: {
+		// 	// 				dimmer: 127
+		// 	// 			}
+		// 	// 		}
+		// 	// 	}
+		// 	// ]
+		// }),
+		// literal<TSRTimelineObj<TimelineContentArtNetAny>>({
+		// 	id: 'artnet_dimmer',
+		// 	enable: {
+		// 		start: Date.now(),
+		// 		duration: 20 * 1000
+		// 	},
+		// 	layer: 'rgb0',
+		// 	content: {
+		// 		deviceType: DeviceType.ARTNET,
+		// 		type: TimelineContentTypeArtNet.VALUES,
+		// 		values: {
+		// 			dimmers: 255
+		// 		}
 				
-				// value: [255, 0, 0, 255]
-			}
-		}),
+		// 		// value: [255, 0, 0, 255]
+		// 	}
+		// }),
 
-		literal<TSRTimelineObj<TimelineContentArtNetValues>>({
-			id: 'whiteout',
-			enable: {
-				start: Date.now()
-			},
-			layer: 'everything',
-			content: {
-				values: {
-					everything: 255
-				}
-			}
-		}),
+		// literal<TSRTimelineObj<TimelineContentArtNetAny>>({
+		// 	id: 'whiteout',
+		// 	enable: {
+		// 		start: Date.now()
+		// 	},
+		// 	layer: 'everything',
+		// 	content: {
+		// 		deviceType: DeviceType.ARTNET,
+		// 		type: TimelineContentTypeArtNet.VALUES,
+		// 		values: {
+		// 			everything: 255
+		// 		}
+		// 	}
+		// }),
 		
 		// literal<TSRTimelineObj<TimelineContentCCGMedia>>({
 		// 	id: 'video0',

@@ -14,7 +14,6 @@
 			"ui:description": "Use Full or Partial transmission mode. Partial mode updates only changed values other than keyframes, reducing network traffic.",
 			"ui:summaryTitle": "Transmission Mode",
 			"enum": ["full", "partial"],
-			"tsEnumNames": ["FULL", "PARTIAL"],
 			"default": "full"
 		},
 		"fps": {
@@ -26,25 +25,17 @@
 			"min": 1,
 			"max": 120
 		},
-		"channelBehavious": {
-			"ui:title": "Options for setting specific channel behavious",
-			"ui:description": "Set channel behavious for non highest takes priority channels",
-			".+": {
-				"channel": {
+		"channelBehaviours": {
+			"ui:title": "Options for setting specific Feature or Channel behaviours",
+			"description": "The key is either a ref to a Feature type OR a unierse:channel, to apply the behavior to. Default behavior is 'Highest'.",
+			"type": "object",
+			"patternProperties": {
+				"([a-z]\\w*)|(\\d+:\\d+)": {
 					"type": "string",
-					"ui:title": "Channel to modify",
-					"ui:description": "Use the form 'Universe':'Address' to secify a channel e.g. 0:15"
-				},
-				"priority": {
-					"type": "string",
-					"ui:title": "Priority Mode",
-					"ui:description": "The priority mode to use for the specfied channel",
-					"enum": ["highest", "lowest", "last"],
-					"tsEnumNames": ["HIGHEST", "LOWEST", "LAST"],
-					"default": "highest"
+					"enum": ["invert", "last", "highest", "lowest"]
 				}
 			},
-			"additionalProperties": true
+			"additionalProperties": false
 		}
 	},
 	"required": ["host"],

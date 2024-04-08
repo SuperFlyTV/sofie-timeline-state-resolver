@@ -2,34 +2,51 @@
 	"$schema": "../../../$schemas/mapping-schema.json",
 	"default": "mappings",
 	"mappings": {
-		"universe": {
+
+
+		"channels": {
 			"type": "object",
 			"properties": {
+				
 				"universe": {
-					"type": "integer",
-					"ui:title": "Universe",
-					"ui:description": "The artnet universe to output to (0-32767)",
-					"ui:summaryTitle": "Universe",
-					"default": 0,
-					"min": 0,
-					"max": 32767
-				}
-			},
-			"required": ["universe"],
-			"additionalProperties": false
-		},
-		"profileMappings": {
-			"type": "object",
-			"properties": {
-				"ID": {
-					"type": "string"
+					"type": "number"
 				},
-				"channels": {
-					"type": "string"
+				"featureChannels": {
+					"type": "object",
+					"properties": {},
+					"description": "Maps channel numbers to Features. Values are either a channel (number), multiple channels (number[]), or range of channels eg '1-512'.",
+					"patternProperties": {
+						".*": {
+							
+							"oneOf": [
+								{
+									"type": "number"
+								},
+								{
+									"type": "array",
+									"items": {
+										"type": "number"
+									}
+								},
+								{
+									"type": "string",
+									"pattern": "\\d+-\\d+"
+								}
+		
+							]
+		
+						}
+					},
+					"additionalProperties": false
 				}
 			},
-			"required": ["ID", "channels"],
-			"additionalProperties": true
+			"required": ["universe", "featureChannels"],
+			"additionalProperties": false
 		}
+
+
+
+
+		
 	}
 }

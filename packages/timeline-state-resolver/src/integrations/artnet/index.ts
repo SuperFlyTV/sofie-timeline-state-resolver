@@ -98,6 +98,7 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 			if (layer.content.deviceType === DeviceType.ARTNET) {
 				
 				console.log("yes")
+				console.log("yay")
 			}
 		})
 

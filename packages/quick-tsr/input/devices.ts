@@ -10,7 +10,7 @@ export const input: TSRInput = {
 				mode: 'full',
 				fps: 44,
 
-				profileBehaviours: {
+				channelBehaviours: {
 					
 					// By default, the priority mode for all channels are "highest value takes precedence"
 					'strobe' : 'invert'

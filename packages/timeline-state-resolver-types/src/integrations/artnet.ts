@@ -15,19 +15,25 @@ export type ArtNetEasingType =
 	| 'Bounce'
 
 export enum TimelineContentTypeArtNet {
-	ARTNET = 'artnet',
+	VALUES = 'values',
 }
 
-export interface TimelineContentArtNet {
+export interface TimelineContentArtNetBase {
 	deviceType: DeviceType.ARTNET
 	type: TimelineContentTypeArtNet
-	channel: number
-	value: number
-	trasition?: {
-		duration: number,
-		type: ArtNetEasingType,
-		direction: 'In' | 'Out' | 'InOut' | 'None'
+}
+export interface TimelineContentArtNet extends TimelineContentArtNetBase {
+	type: TimelineContentTypeArtNet.VALUES	
+	values: {
+		[feature: string]: number | number[]
 	}
+	
+	// TODO:
+	// transition?: {
+	// 	duration: number,
+	// 	type: ArtNetEasingType,
+	// 	direction: 'In' | 'Out' | 'InOut' | 'None'
+	// }
 }
 
 export interface ArtNetDeviceCommand {

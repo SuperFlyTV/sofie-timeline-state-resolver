@@ -7,33 +7,37 @@
 
 export interface ArtNetOptions {
 	host: string
-	mode?: Mode
+	mode?: 'full' | 'partial'
 	fps?: number
-	channelBehavious?: {
-		[k: string]: unknown
+	/**
+	 * The key is either a ref to a Feature type OR a unierse:channel, to apply the behavior to. Default behavior is 'Highest'.
+	 */
+	channelBehaviours?: {
+		/**
+		 * This interface was referenced by `undefined`'s JSON-Schema definition
+		 * via the `patternProperty` "([a-z]\w*)|(\d+:\d+)".
+		 */
+		[k: string]: 'invert' | 'last' | 'highest' | 'lowest'
 	}
 }
 
-export enum Mode {
-	FULL = 'full',
-	PARTIAL = 'partial'
-}
-
-export interface MappingArtnetUniverse {
+export interface MappingArtnetChannels {
 	universe: number
-	mappingType: MappingArtnetType.Universe
-}
-
-export interface MappingArtnetProfileMappings {
-	ID: string
-	channels: string
-	mappingType: MappingArtnetType.ProfileMappings
-	[k: string]: unknown
+	/**
+	 * Maps channel numbers to Features. Values are either a channel (number), multiple channels (number[]), or range of channels eg '1-512'.
+	 */
+	featureChannels: {
+		/**
+		 * This interface was referenced by `undefined`'s JSON-Schema definition
+		 * via the `patternProperty` ".*".
+		 */
+		[k: string]: number | number[] | string
+	}
+	mappingType: MappingArtnetType.Channels
 }
 
 export enum MappingArtnetType {
-	Universe = 'universe',
-	ProfileMappings = 'profileMappings',
+	Channels = 'channels',
 }
 
-export type SomeMappingArtnet = MappingArtnetUniverse | MappingArtnetProfileMappings
+export type SomeMappingArtnet = MappingArtnetChannels
