@@ -2,26 +2,26 @@
 // this is a temporary file to use appropriate code in artnet/index.ts
 // source: https://www.npmjs.com/package/artnet?activeTab=code
 
-var dgram = require('dgram')
-var util = require('util')
-var EventEmitter = require('events').EventEmitter
+let dgram = require('dgram')
+let util = require('util')
+let EventEmitter = require('events').EventEmitter
 
-var Artnet = function (config) {
+let Artnet = function (config) {
 	if (!(this instanceof Artnet)) {
 		return new Artnet(config)
 	}
 
-	var that = this
+	let that = this
 
 	config = config || {}
 
 	/* eslint-disable no-multi-spaces */
-	var host = config.host || '255.255.255.255'
-	var port = parseInt(config.port, 10) || 6454
-	var refresh = parseInt(config.refresh, 10) || 4000
-	var sendAll = config.sendAll || false
+	let host = config.host || '255.255.255.255'
+	let port = parseInt(config.port, 10) || 6454
+	let refresh = parseInt(config.refresh, 10) || 4000
+	let sendAll = config.sendAll || false
 
-	var socket = dgram.createSocket({ type: 'udp4', reuseAddr: true })
+	let socket = dgram.createSocket({ type: 'udp4', reuseAddr: true })
 
 	socket.on('error', function (err) {
 		that.emit('error', err)
@@ -39,57 +39,57 @@ var Artnet = function (config) {
 	}
 
 	// Index of the following arrays is the universe
-	var data = [] // The 512 dmx channels
-	var interval = [] // The intervals for the 4sec refresh
-	var sendThrottle = [] // The timeouts
-	var sendDelayed = [] // Boolean flag indicating if data should be sent after sendThrottle timeout
-	var dataChanged = [] // The highest channel number that had a change. mind that channel counting starts at 1!
+	let data = [] // The 512 dmx channels
+	let interval = [] // The intervals for the 4sec refresh
+	let sendThrottle = [] // The timeouts
+	let sendDelayed = [] // Boolean flag indicating if data should be sent after sendThrottle timeout
+	let dataChanged = [] // The highest channel number that had a change. mind that channel counting starts at 1!
 
 	this.data = data
 
-	var startRefresh = function (universe) {
+	let startRefresh = function (universe) {
 		interval[universe] = setInterval(function () {
 			that.send(universe, 512)
 		}, refresh)
 	}
 
 	// See http://www.artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf page 40
-	var triggerPackage = function (oem, key, subkey) {
+	let triggerPackage = function (oem, key, subkey) {
 		// /* eslint-disable unicorn/number-literal-case */
-		var hOem = (oem >> 8) & 0xff
-		var lOem = oem & 0xff
+		let hOem = (oem >> 8) & 0xff
+		let lOem = oem & 0xff
 
-		var header = [65, 114, 116, 45, 78, 101, 116, 0, 0, 153, 0, 14, 0, 0, hOem, lOem, key, subkey]
+		let header = [65, 114, 116, 45, 78, 101, 116, 0, 0, 153, 0, 14, 0, 0, hOem, lOem, key, subkey]
 
 		// Payload is manufacturer specific
-		var payload = Array.apply(null, new Array(512)).map(function () {
+		let payload = Array.apply(null, new Array(512)).map(function () {
 			return null
 		}, 0)
 		// // eslint-disable-next-line unicorn/no-new-buffer
-		return new Buffer(header.concat(payload))
+		return new Buffer.alloc(header.concat(payload))
 	}
 
 	// Triggers should always be sent, never throttled
 	this.sendTrigger = function (oem, key, subkey, callback) {
-		var buf = triggerPackage(oem, key, subkey)
+		let buf = triggerPackage(oem, key, subkey)
 		socket.send(buf, 0, buf.length, port, host, callback)
 	}
 
 	// See http://www.artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf page 45
-	var artdmxPackage = function (universe, length) {
+	let artdmxPackage = function (universe, length) {
 		length = parseInt(length, 10) || 2
 		if (length % 2) {
 			length += 1
 		}
 
 		// /* eslint-disable unicorn/number-literal-case */
-		var hUni = (universe >> 8) & 0xff
-		var lUni = universe & 0xff
+		let hUni = (universe >> 8) & 0xff
+		let lUni = universe & 0xff
 
-		var hLen = (length >> 8) & 0xff
-		var lLen = length & 0xff
+		let hLen = (length >> 8) & 0xff
+		let lLen = length & 0xff
 
-		var header = [65, 114, 116, 45, 78, 101, 116, 0, 0, 80, 0, 14, 0, 0, lUni, hUni, hLen, lLen]
+		let header = [65, 114, 116, 45, 78, 101, 116, 0, 0, 80, 0, 14, 0, 0, lUni, hUni, hLen, lLen]
 
 		if (!data[universe]) {
 			data[universe] = Array.apply(null, new Array(512)).map(function () {
@@ -97,7 +97,7 @@ var Artnet = function (config) {
 			}, 0)
 		}
 		// // eslint-disable-next-line unicorn/no-new-buffer
-		return new Buffer(header.concat(data[universe].slice(0, hLen * 256 + lLen)))
+		return new Buffer.alloc(header.concat(data[universe].slice(0, hLen * 256 + lLen)))
 	}
 
 	// If refresh is set to true all 512 channels will be sent, otherwise from channel 1 to the last changed channel
@@ -129,7 +129,7 @@ var Artnet = function (config) {
 			}
 		}, 25)
 
-		var buf = artdmxPackage(universe, refresh ? 512 : dataChanged[universe])
+		let buf = artdmxPackage(universe, refresh ? 512 : dataChanged[universe])
 		dataChanged[universe] = 0
 		socket.send(buf, 0, buf.length, port, host, callback)
 	}
@@ -137,10 +137,10 @@ var Artnet = function (config) {
 	/* [ [ uint15 universe, ] uint9 channel, ] uint8 value [, function callback ] */
 	/* [ [ uint15 universe, ] uint9 channel, ] array[uint8] values [, function callback ] */
 	this.set = function () {
-		var universe
-		var channel
-		var value
-		var callback
+		let universe
+		let channel
+		let value
+		let callback
 
 		if (arguments.length === 4) {
 			universe = arguments[0]
@@ -183,9 +183,9 @@ var Artnet = function (config) {
 
 		dataChanged[universe] = dataChanged[universe] || 0
 
-		var index
+		let index
 		if (typeof value === 'object' && value.length > 0) {
-			for (var i = 0; i < value.length; i++) {
+			for (let i = 0; i < value.length; i++) {
 				index = channel + i - 1
 				if (typeof value[i] === 'number' && data[universe][index] !== value[i]) {
 					data[universe][index] = value[i]
@@ -212,10 +212,10 @@ var Artnet = function (config) {
 
 	/* [ [ uint15 oem, ] uint9 subkey, ] uint8 key [, function callback ] */
 	this.trigger = function () {
-		var oem
-		var subkey
-		var key
-		var callback
+		let oem
+		let subkey
+		let key
+		let callback
 
 		if (arguments.length === 4) {
 			oem = arguments[0]
@@ -257,7 +257,7 @@ var Artnet = function (config) {
 	}
 
 	this.close = function () {
-		var i
+		let i
 		for (i = 0; i < interval.length; i++) {
 			clearInterval(interval[i])
 		}

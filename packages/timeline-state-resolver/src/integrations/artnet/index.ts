@@ -20,6 +20,24 @@ import { CommandWithContext, Device } from '../../service/device'
 // import { assertNever } from '../../lib'
 // import { StateHandler } from 'src/service/stateHandler'
 
+export interface ArtNetDeviceStateNew {
+	device: string
+	data: channelData
+}
+
+interface channelData {
+	channel: number
+	value: number
+	modifier: ChannelModifier
+}
+
+enum ChannelModifier {
+	HIGHEST = 'highest',
+	LOWEST = 'lowest',
+	LAST = 'last',
+	INVERT = 'invert',
+}
+
 export interface ArtNetDeviceState {
 	[address: string]: ArtNetDeviceStateContent
 }
@@ -39,6 +57,27 @@ export interface TimelineContentArtNetValues extends ArtNetCommandContent {
 
 }
 
+interface ArtNetUniverse {
+
+	host: string
+	port: number
+	refresh: number
+	sendAll: boolean
+	mode: string
+
+
+	data: number[]
+	interval: any[]
+	sendThrottle: any[]
+	sendDelayed: any[]
+	dataChanged: any[]
+}
+
+interface newData {
+	channel: number
+	value: number
+}
+
 
 export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNetCommandWithContext>{
 	
@@ -46,7 +85,7 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 	
 	options!: ArtNetOptions
 	
-	deviceState!: ArtNetDeviceState
+	deviceState!: ArtNetDeviceState 
 
 
 	// private _ArtNetClient!: 
@@ -87,18 +126,20 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 
 		// TODO: Convert the timeline state into your own (internal) ArtNetState
 		// Tip: This is where you put the logic for "highest takes precedence"
-		const addrToArtNetMessage: ArtNetDeviceState = {}
+		const addrToArtNetMessage: ArtNetDeviceState = {
 
+		}
+
+		this.sendArtNetUniverse("127.0.0.1")
 
 		// const artNetGroup = state.id
 		// console.log("layer:", artNetGroup)
-		console.log(state)
+		// console.log(addrToArtNetMessage)
 
 		Object.values<Timeline.ResolvedTimelineObjectInstance<TSRTimelineContent>>(state.layers).forEach((layer) => {
 			if (layer.content.deviceType === DeviceType.ARTNET) {
 				
-				console.log("yes")
-				console.log("yay")
+				// console.log(layer)
 			}
 		})
 
@@ -121,7 +162,7 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 					// Something has changed.
 
 					// send channelValue.value
-					console.log(commands)
+					// console.log(commands)
 					let newCommands: ArtNetDeviceCommand = ({channel: 12, value: 255})
 					commands.push({
 						timelineObjId: '',
@@ -169,9 +210,43 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 	// 	// updates sendArtnet with new values only
 	// }
 
-	// private async sendArtNetUniverse() {
-	// 	// sends entire artnet universe data with appropriate parameters
-	// }
+	private async sendArtNetUniverse(host: string, fps: number = 44, mode: string = 'full') {
+
+		let newUniverse:ArtNetUniverse = {
+			host: host,
+			port: 6454,
+			refresh: fps,
+			sendAll: true,
+			mode: mode,
+
+			data: [],
+			interval: [],
+			sendThrottle: [],
+			sendDelayed: [],
+			dataChanged: []
+		}
+
+		newUniverse.data[511] = 1
+		newUniverse.data.fill(0,0,512)
+
+		let updateValues: newData[] = [
+			{channel: 22, value: 255},
+			{channel: 45, value: 255},
+			{channel: 101, value: 127}
+		]
+
+		updateValues.forEach(element => {
+			newUniverse.data[element.channel - 1] = element.value
+		});
+
+		console.log(newUniverse.host)
+
+		console.log(newUniverse.data.length)
+		console.log(newUniverse.data)
+		// sends entire artnet universe data with appropriate parameters
+
+
+	}
 
 }
 
