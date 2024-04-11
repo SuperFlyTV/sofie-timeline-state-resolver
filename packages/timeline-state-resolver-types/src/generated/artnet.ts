@@ -17,7 +17,7 @@ export interface ArtNetOptions {
 		 * This interface was referenced by `undefined`'s JSON-Schema definition
 		 * via the `patternProperty` "([a-z]\w*)|(\d+:\d+)".
 		 */
-		[k: string]: 'invert' | 'last' | 'highest' | 'lowest'
+		[k: string]: 'highest' | 'lowest' | 'last' | 'invert'
 	}
 }
 

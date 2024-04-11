@@ -32,7 +32,7 @@
 			"patternProperties": {
 				"([a-z]\\w*)|(\\d+:\\d+)": {
 					"type": "string",
-					"enum": ["invert", "last", "highest", "lowest"]
+					"enum": ["highest", "lowest", "last", "invert"]
 				}
 			},
 			"additionalProperties": false

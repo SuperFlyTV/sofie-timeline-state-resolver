@@ -8,7 +8,10 @@ import {
 	ArtNetOptions,
 	StatusCode,
 	ActionExecutionResult,
-	ArtNetDeviceCommand
+	ArtNetDeviceCommand,
+	Mappings,
+	MappingArtnetChannels,
+	Mapping
 } from 'timeline-state-resolver-types'
 import { CommandWithContext, Device } from '../../service/device'
 // import * as artnet from 'artnet'
@@ -25,17 +28,17 @@ export interface ArtNetDeviceStateNew {
 	data: channelData
 }
 
-interface channelData {
-	channel: number
-	value: number
-	modifier: ChannelModifier
-}
-
-enum ChannelModifier {
+enum channelBehaviour {
 	HIGHEST = 'highest',
 	LOWEST = 'lowest',
 	LAST = 'last',
 	INVERT = 'invert',
+}
+
+interface channelData {
+	channel: number
+	value: number
+	behavious: channelBehaviour
 }
 
 export interface ArtNetDeviceState {
@@ -122,27 +125,53 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 	}
 
 	// still under work
-	convertTimelineStateToDeviceState(state: Timeline.TimelineState<TSRTimelineContent>): ArtNetDeviceState {
+	convertTimelineStateToDeviceState(
+			state: Timeline.TimelineState<TSRTimelineContent>,
+			mappings: Mappings
+		): ArtNetDeviceState {
+
+			// hello!
 
 		// TODO: Convert the timeline state into your own (internal) ArtNetState
 		// Tip: This is where you put the logic for "highest takes precedence"
+
 		const addrToArtNetMessage: ArtNetDeviceState = {
-
+			
 		}
+		
+		let updateValues: newData[] = []
 
-		this.sendArtNetUniverse("127.0.0.1")
+		Object.values<Timeline.ResolvedTimelineObjectInstance<TSRTimelineContent>>(state.layers).forEach((layer) => {
 
+
+			const map = mappings[layer.layer] as Mapping<MappingArtnetChannels> | undefined
+			
+			if (layer.content.deviceType === DeviceType.ARTNET && map) {
+
+				let newValues = layer.content.values // { dimmer: 42 }
+				let channelMapping = map.options.featureChannels // { dimmer: [1], RGB: [2,3,4] }
+
+				Object.entries(channelMapping).forEach(([key, artnetChannels]) => {
+					const channelValues = newValues[key] // 42
+					if (channelValues == null) return // Skip if no values
+
+					// TODO: parse channels to create apporpriate data types, of number or array etc.
+					// const channelNumbers :number[]= parseChannels(artnetChannels)
+
+					
+
+					
+					updateValues.push({channel: artnetChannels as number, value:channelValues as number})
+				})
+
+			}
+		})
 		// const artNetGroup = state.id
 		// console.log("layer:", artNetGroup)
 		// console.log(addrToArtNetMessage)
 
-		Object.values<Timeline.ResolvedTimelineObjectInstance<TSRTimelineContent>>(state.layers).forEach((layer) => {
-			if (layer.content.deviceType === DeviceType.ARTNET) {
-				
-				// console.log(layer)
-			}
-		})
-
+		// TODO: this should be moved elsewhere
+		this.sendArtNetUniverse(updateValues, this.options.host)
 		return addrToArtNetMessage
 	}
 
@@ -210,7 +239,7 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 	// 	// updates sendArtnet with new values only
 	// }
 
-	private async sendArtNetUniverse(host: string, fps: number = 44, mode: string = 'full') {
+	private async sendArtNetUniverse(newValues: newData[], host: string, fps: number = 44, mode: string = 'full') {
 
 		let newUniverse:ArtNetUniverse = {
 			host: host,
@@ -226,22 +255,16 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 			dataChanged: []
 		}
 
-		newUniverse.data[511] = 1
+		// newUniverse.data[511] = 1
 		newUniverse.data.fill(0,0,512)
 
-		let updateValues: newData[] = [
-			{channel: 22, value: 255},
-			{channel: 45, value: 255},
-			{channel: 101, value: 127}
-		]
-
-		updateValues.forEach(element => {
+		newValues.forEach(element => {
 			newUniverse.data[element.channel - 1] = element.value
 		});
 
-		console.log(newUniverse.host)
+		// console.log(newUniverse.host)
 
-		console.log(newUniverse.data.length)
+		// console.log(newUniverse.data.length)
 		console.log(newUniverse.data)
 		// sends entire artnet universe data with appropriate parameters
 

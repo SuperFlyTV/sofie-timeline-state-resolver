@@ -12,7 +12,7 @@ export const input: TSRInput = {
 				universe: 0,
 				featureChannels: {
 					// Maps dimmer to channel 1:
-					"dimmer": 1,
+					"dimmer": 1
 				}
 			},
 		}),

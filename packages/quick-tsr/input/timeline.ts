@@ -43,6 +43,21 @@ export const input: TSRInput = {
 				}
 			}
 		}),
+		literal<TSRTimelineObj<TimelineContentArtNetAny>>({
+			id: 'colour',
+			enable: {
+				start: Date.now(),
+				duration: 20 * 1000
+			},
+			layer: 'rgb0',
+			content: {
+				deviceType: DeviceType.ARTNET,
+				type: TimelineContentTypeArtNet.VALUES,
+				values: {
+					dimmer: 127
+				}
+			}
+		}),
 		// literal<TSRTimelineObj<TimelineContentArtNetAny>>({
 		// 	id: 'artnet11',
 		// 	enable: {
