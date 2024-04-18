@@ -36,11 +36,12 @@ export interface TimelineContentArtNet extends TimelineContentArtNetBase {
 	// }
 }
 
+// commented out
 export interface ArtNetDeviceCommand {
 	channel: number
 	value: number
 }
-
+// commented out
 export interface ArtNetCommandContent {
 	ID: string
 	values: number | Array<number>

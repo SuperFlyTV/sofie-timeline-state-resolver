@@ -42,11 +42,12 @@ interface channelData {
 }
 
 export interface ArtNetDeviceState {
-	[address: string]: ArtNetDeviceStateContent
+	[channel: string]: ArtNetDeviceStateContent
 }
 
-interface ArtNetDeviceStateContent extends ArtNetCommandContent {
+interface ArtNetDeviceStateContent {
 	fromTLObject: string
+	value: number
 }
 
 export interface ArtNetCommandWithContext extends CommandWithContext{
@@ -56,6 +57,7 @@ export interface ArtNetCommandWithContext extends CommandWithContext{
 }
 
 // needs somthing to resolvew timeline names, this may not be the place
+// commented out
 export interface TimelineContentArtNetValues extends ArtNetCommandContent {
 
 }
@@ -74,11 +76,6 @@ interface ArtNetUniverse {
 	sendThrottle: any[]
 	sendDelayed: any[]
 	dataChanged: any[]
-}
-
-interface newData {
-	channel: number
-	value: number
 }
 
 
@@ -130,48 +127,79 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 			mappings: Mappings
 		): ArtNetDeviceState {
 
-			// hello!
-
 		// TODO: Convert the timeline state into your own (internal) ArtNetState
 		// Tip: This is where you put the logic for "highest takes precedence"
 
 		const addrToArtNetMessage: ArtNetDeviceState = {
 			
 		}
-		
-		let updateValues: newData[] = []
 
 		Object.values<Timeline.ResolvedTimelineObjectInstance<TSRTimelineContent>>(state.layers).forEach((layer) => {
-
 
 			const map = mappings[layer.layer] as Mapping<MappingArtnetChannels> | undefined
 			
 			if (layer.content.deviceType === DeviceType.ARTNET && map) {
 
 				let newValues = layer.content.values // { dimmer: 42 }
-				let channelMapping = map.options.featureChannels // { dimmer: [1], RGB: [2,3,4] }
+				let channelMapping = map.options.featureChannels // { dimmer: [1], RGB: [2,3,4], range: 12-24 }
 
+
+				// has some issus with mapping channels and timeline values when arrays are of different length 
 				Object.entries(channelMapping).forEach(([key, artnetChannels]) => {
 					const channelValues = newValues[key] // 42
 					if (channelValues == null) return // Skip if no values
 
-					// TODO: parse channels to create apporpriate data types, of number or array etc.
-					// const channelNumbers :number[]= parseChannels(artnetChannels)
+					// single channel and single value
+					// e.g. channel 2, value 255: 2:255
+					if (typeof channelValues === "number" && typeof artnetChannels === "number") {
+						addrToArtNetMessage[(map.options.universe).toString() + ":" + (artnetChannels).toString()] = {
+							fromTLObject: layer.id,
+							value: channelValues
+						}
+					}
+					// single channel and array of values, use first value
+					// e.g. channel 2, value [127, 255]: 2:127
+					else if (Array.isArray(channelValues) && typeof artnetChannels === "number") {
+						addrToArtNetMessage[(map.options.universe).toString() + ":" + (artnetChannels).toString()] = {
+							fromTLObject: layer.id,
+							value: channelValues[0]
+						}
+					}
+					// array of channels and single value, all channels the same value
+					// e.g. channel [2,3,4], value 255: 2:255, 3:255 etc.
+					else if (typeof channelValues === "number" && Array.isArray(artnetChannels)) {
+						addrToArtNetMessage[(map.options.universe).toString() + ":" + (artnetChannels).toString()] = {
+							fromTLObject: layer.id,
+							value: channelValues
+						}
+					}
+					// array of channels and array of values
+					// e.g. channel [2,3,4], values [255,255,255]
+					// close but not quite right, needs to fill with 0 correctly
+					else if (Array.isArray(channelValues) && Array.isArray(artnetChannels)) {
+						for(let i=0; i<artnetChannels.length; i++) {
+							addrToArtNetMessage[(map.options.universe).toString() + ":" + (artnetChannels[i]).toString()] = {
+								fromTLObject: layer.id,
+								value: channelValues[i]
+							}
+						}
+					}
+					// start and end channel and single value, all channels the same
+					// e.g. channel 12-24, value 255: 12:255, 13:255 ... 23:255, 24:255
+					else if (typeof channelValues === "number" && typeof artnetChannels === "string" && /^\d+\-\d+$/.test(artnetChannels)) {
+						let channelRange = artnetChannels.split('-')
+						for (let channel = parseInt(channelRange[0]); channel<= parseInt(channelRange[1]); channel++ ) {
+							addrToArtNetMessage[(map.options.universe).toString() + ":" + channel.toString()] = {
+								fromTLObject: layer.id,
+								value: channelValues
+							}
+						}
+					}
 
-					
-
-					
-					updateValues.push({channel: artnetChannels as number, value:channelValues as number})
 				})
-
 			}
 		})
-		// const artNetGroup = state.id
-		// console.log("layer:", artNetGroup)
-		// console.log(addrToArtNetMessage)
-
-		// TODO: this should be moved elsewhere
-		this.sendArtNetUniverse(updateValues, this.options.host)
+		console.log(addrToArtNetMessage)
 		return addrToArtNetMessage
 	}
 
@@ -192,7 +220,9 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 
 					// send channelValue.value
 					// console.log(commands)
+					// let newCommands: ArtNetDeviceCommand = this.convertTimelineStateToDeviceState(newState)
 					let newCommands: ArtNetDeviceCommand = ({channel: 12, value: 255})
+
 					commands.push({
 						timelineObjId: '',
 						context: '',
@@ -223,23 +253,19 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 	}
 
 	// placeholder
-	async sendCommand(/*cmd: ArtNetDeviceCommand*/): Promise<void> {
+	async sendCommand(cmd: any /*ArtNetDeviceCommand*/): Promise<void> {
 
-		// This is called when it's time to send the command
-		// console.log(cmd)
-		// Send the command
-		console.log("something sent")
-		// this.sendCommand(22)
+		this.sendArtNetUniverse(cmd, this.options.host)
 
 	}
 
 	// additonal methods for good implementation, currently unused
 
-	// private async updateArtNet() {
+	// private async updateArtNetUniverse() {
 	// 	// updates sendArtnet with new values only
 	// }
 
-	private async sendArtNetUniverse(newValues: newData[], host: string, fps: number = 44, mode: string = 'full') {
+	private async sendArtNetUniverse(newValues: ArtNetDeviceCommand[], host: string, fps: number = 44, mode: string = 'full') {
 
 		let newUniverse:ArtNetUniverse = {
 			host: host,
@@ -255,30 +281,15 @@ export class ArtNetDevice extends Device<ArtNetOptions, ArtNetDeviceState, ArtNe
 			dataChanged: []
 		}
 
-		// newUniverse.data[511] = 1
-		newUniverse.data.fill(0,0,512)
+		// newUniverse.data.fill(0,0,512)
 
 		newValues.forEach(element => {
 			newUniverse.data[element.channel - 1] = element.value
 		});
 
-		// console.log(newUniverse.host)
-
-		// console.log(newUniverse.data.length)
-		console.log(newUniverse.data)
+		console.log('newUniverse.data', newUniverse.data)
 		// sends entire artnet universe data with appropriate parameters
-
 
 	}
 
 }
-
-// unsure if useful
-
-// interface ArtNetDeviceState {
-// 	[universe: string]: {
-// 		[channel: string]: {
-// 			value: number
-// 		}
-// 	}
-// }

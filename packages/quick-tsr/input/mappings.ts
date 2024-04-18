@@ -24,7 +24,7 @@ export const input: TSRInput = {
 				universe: 0,
 				featureChannels: {
 					"dimmer": 6,
-					"RGB": [7,8,9],
+					"RGB": [7,9,11],
 				}
 			},
 		}),
@@ -39,18 +39,18 @@ export const input: TSRInput = {
 				}
 			},
 		}),
-		dimmerGroup0: literal<Mapping<SomeMappingArtnet>>({
-			device: DeviceType.ARTNET,
-			deviceId: 'universe0',
-			options: {
-				mappingType: MappingArtnetType.Channels,
-				universe: 0,
-				featureChannels: {
-					// Maps dimmers to channel group:
-					"dimmers": [11, 12, 13, 14, 15, 16, 17, 18],
-				}
-			},
-		}),
+		// dimmerGroup0: literal<Mapping<SomeMappingArtnet>>({
+		// 	device: DeviceType.ARTNET,
+		// 	deviceId: 'universe0',
+		// 	options: {
+		// 		mappingType: MappingArtnetType.Channels,
+		// 		universe: 0,
+		// 		featureChannels: {
+		// 			// Maps dimmers to channel group:
+		// 			"dimmers": [11, 12, 13, 14, 15, 16, 17, 18],
+		// 		}
+		// 	},
+		// }),
 
 		everything: literal<Mapping<SomeMappingArtnet>>({
 			device: DeviceType.ARTNET,
@@ -60,7 +60,7 @@ export const input: TSRInput = {
 				universe: 0,
 				featureChannels: {
 					// "everything": ['1-50', '100-512'],
-					"everything": '1-512'
+					"all": '12-18'
 					
 				}
 			},

@@ -17,7 +17,7 @@ export const input: TSRInput = {
 			id: 'grey',
 			enable: {
 				start: Date.now(),
-				duration: 20 * 1000
+				duration: 5 * 1000
 			},
 			layer: 'dimmer0',
 			content: {
@@ -31,7 +31,7 @@ export const input: TSRInput = {
 		literal<TSRTimelineObj<TimelineContentArtNetAny>>({
 			id: 'white',
 			enable: {
-				start: Date.now() + 1000,
+				start: Date.now() + 5000,
 				duration: 20 * 1000
 			},
 			layer: 'dimmer0',
@@ -44,9 +44,24 @@ export const input: TSRInput = {
 			}
 		}),
 		literal<TSRTimelineObj<TimelineContentArtNetAny>>({
-			id: 'colour',
+			id: 'group1',
 			enable: {
 				start: Date.now(),
+				duration: 16 * 1000
+			},
+			layer: 'everything',
+			content: {
+				deviceType: DeviceType.ARTNET,
+				type: TimelineContentTypeArtNet.VALUES,
+				values: {
+					all: 127
+				}
+			}
+		}),
+		literal<TSRTimelineObj<TimelineContentArtNetAny>>({
+			id: 'rgbColour',
+			enable: {
+				start: Date.now() + 2000,
 				duration: 20 * 1000
 			},
 			layer: 'rgb0',
@@ -54,7 +69,7 @@ export const input: TSRInput = {
 				deviceType: DeviceType.ARTNET,
 				type: TimelineContentTypeArtNet.VALUES,
 				values: {
-					dimmer: 127
+					RGB: [255,127,255],
 				}
 			}
 		}),
