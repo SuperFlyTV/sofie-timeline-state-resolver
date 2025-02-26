@@ -54,6 +54,11 @@ export class MockDeviceInstanceWrapper
 		return Date.now()
 	})
 
+	init = jest.fn(async (_activeRundownPlaylistId?: string | undefined): Promise<boolean> => {
+		// note - this method exists for the old flow. stateHandler flow should use initDevice
+		return true
+	})
+
 	initDevice = jest.fn(async (_activeRundownPlaylistId?: string | undefined): Promise<boolean> => {
 		// throw new Error('Method not implemented.')
 		return true
