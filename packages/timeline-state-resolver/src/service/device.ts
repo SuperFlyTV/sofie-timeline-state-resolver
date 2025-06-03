@@ -81,6 +81,25 @@ export abstract class Device<DeviceOptions, DeviceState, Command extends Command
 	): Array<Command>
 	abstract sendCommand(command: Command): Promise<void>
 	// -------------------------------------------------------------------
+
+	// NOT SURE WHERE TO PLACE THIS, SO IT's MORE TO EXPLAIN THE FREEZE/CONTINUE/SEEK FUNCTIONALITY :
+
+	/** Freeze the device at its current state */
+    async freeze?(): Promise<void>
+    
+    /** Continue from frozen state, accounting for the time that passed while frozen */
+    async continue?(frozenDuration: number): Promise<void>
+
+	/** 
+	* This should be called to make a dip (black or silence) in devices while recalculating 
+	* a new state/position 
+	**/
+	async dipUnderRecalculation?(): Promise<void>
+    
+    /** Whether this device supports freeze/continue functionality */
+    get supportsFreezing(): boolean {
+        return false
+    }
 }
 
 /**

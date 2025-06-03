@@ -177,7 +177,12 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 
 	public readonly connectionManager = new ConnectionManager()
 
+	// The _getCurrentTime is not used in the freeze/continue draft
 	private _getCurrentTime?: () => number
+	private _freezeStartRealTime?: number // Real time when freeze started
+	private _freezeTimelineTime?: number // Timeline time when freeze started
+	private _isFrozen = false
+	private _totalFrozenDuration = 0 // Accumulated frozen time
 
 	private _nextResolveTime = 0
 	private _resolved: {
@@ -288,13 +293,95 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 	/**
 	 * Returns a nice, synchronized time.
 	 */
-	public getCurrentTime() {
-		if (this._getCurrentTime) {
-			return this._getCurrentTime()
-		} else {
-			return Date.now()
+	public getCurrentTime(): number {
+		// In this draft I'm ignoring the _getCurrentTime() that can be set in the options.
+		// Just for simplicity
+		const realTime = this._options.getCurrentTime?.() ?? Date.now()
+
+		if (this._isFrozen && this._freezeTimelineTime !== undefined) {
+			// During freeze: return the frozen timeline time (doesn't advance)
+			return this._freezeTimelineTime
 		}
+
+		// Normal operation: real time minus any accumulated frozen time
+		return realTime - this._totalFrozenDuration
 	}
+
+	// The Freeze/Continue/Seek is meant for rehearsal purposes 
+	// as a lot of equipment could give artifacts in production.
+	public freeze(): void {
+		if (this._isFrozen) return
+
+		const realTime = this._options.getCurrentTime?.() ?? Date.now()
+
+		this._isFrozen = true
+		this._freezeStartRealTime = realTime
+		this._freezeTimelineTime = this.getCurrentTime() // This gets the current timeline time
+
+		// Pause devices that support freezing
+		this._mapAllConnections(true, async (device) => {
+				await device.device.freeze?.()
+		}).catch((error) => {
+			this.emit('error', 'Error freezing devices:', error)
+		})
+
+		// Stop timeline resolution
+		this._stopTriggerResolveTimeline()
+
+		this.emit('info', `Timeline frozen at t=${this._freezeTimelineTime}`)
+	}
+
+	public continue(): void {
+		if (!this._isFrozen || this._freezeStartRealTime === undefined) return
+
+		const realTime = this._options.getCurrentTime?.() ?? Date.now()
+		const frozenDuration = realTime - this._freezeStartRealTime
+
+		// Accumulate total frozen time
+		this._totalFrozenDuration += frozenDuration
+
+		this._isFrozen = false
+
+		// Resume devices with the frozen duration info
+		this._mapAllConnections(true, async (device) => {
+				await device.device.continue?.(frozenDuration)
+		}).catch((error) => {
+			this.emit('error', 'Error continuing devices:', error)
+		})
+
+		// Restart timeline resolution from where we left off
+		this._triggerResolveTimeline()
+
+		this.emit('info', `Timeline resumed from t=${this._freezeTimelineTime}, real time advanced by ${frozenDuration}ms`)
+
+		// Clean up
+		this._freezeStartRealTime = undefined
+		this._freezeTimelineTime = undefined
+	}
+
+	public seek(seconds: number): void {
+		const seekAmount = seconds * 1000
+
+		// Update the frozen timeline time if we're currently frozen
+		if (this._freezeTimelineTime !== undefined) {
+			this._freezeTimelineTime += seekAmount
+			return //stay frozen
+		}
+
+		this._totalFrozenDuration -= seekAmount
+
+		this._mapAllConnections(true, async (device) => {
+				// This is to support a visual indication (black)
+				// But also to hide any artifacts while seeking
+				await device.device.dipUnderRecalculation?.()
+		}).catch((error) => {
+			this.emit('error', 'Error dip to black on devices:', error)
+		})
+
+		// trigger immediate:
+		this.resetResolver()
+	}
+
 	/**
 	 * Returns the mappings
 	 */
@@ -466,6 +553,14 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 			// resolve right away:
 			this._resolveTimeline()
 		}
+	}
+
+	/**
+	 * To implement a Freeze a stop any planned triggers
+	 */
+	private _stopTriggerResolveTimeline() {
+		clearTimeout(this._resolveTimelineTrigger)
+		delete this._resolveTimelineTrigger
 	}
 
 	/**
