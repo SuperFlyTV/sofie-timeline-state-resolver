@@ -89,6 +89,11 @@ export class CasparCGDevice extends DeviceWithState<State, DeviceOptionsCasparCG
 	private _retryTime: number | null = null
 	private _currentState: InternalState = { channels: {} }
 
+	private _frozenTime?: number
+
+    get supportsFreezing(): boolean { return true }
+
+
 	constructor(deviceId: string, deviceOptions: DeviceOptionsCasparCGInternal, getCurrentTime: () => Promise<number>) {
 		super(deviceId, deviceOptions, getCurrentTime)
 
@@ -295,6 +300,29 @@ export class CasparCGDevice extends DeviceWithState<State, DeviceOptionsCasparCG
 			return 'Uninitialized CasparCG ' + this.deviceId
 		}
 	}
+
+    async freeze(): Promise<void> {
+        this._frozenTime = this.getCurrentTime()
+        
+        // Pause all media playback
+        // Note: CasparCG might need specific PAUSE commands
+        this.emitDebug('CasparCG frozen at time:', this._frozenTime)
+    }
+
+    async continue(_frozenDuration: number): Promise<void> {
+        
+        if (this._frozenTime !== undefined) {
+            // Adjust internal time tracking
+            // Update scheduled LOADBG/PLAY commands
+            // Handle media position corrections
+			await this._ccg.executeCommand({ command: Commands.Resume, params: {
+				channel: 1, // Just a draft
+				layer: 1,
+			}})        
+        }
+        
+        this._frozenTime = undefined
+    }
 
 	private convertObjectToCasparState(
 		mappings: Mappings,
