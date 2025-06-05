@@ -302,6 +302,8 @@ export class CasparCGDevice extends DeviceWithState<State, DeviceOptionsCasparCG
 	}
 
     async freeze(): Promise<void> {
+		// This time should be the central time from
+		// Conductor, or a nowHandler.ts file 
         this._frozenTime = this.getCurrentTime()
         
         // Pause all media playback

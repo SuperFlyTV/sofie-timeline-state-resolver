@@ -307,6 +307,15 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 		return realTime - this._totalFrozenDuration
 	}
 
+	public getNowWithFreezeOffset(): number {
+		// This is the time that is used for resolving the timeline
+		// It takes into account the frozen state and the accumulated frozen time
+		// this time should replace Date.Now() multiple places in the code
+		// Could be placed in a NowHandler() (as the rough example in server/nowHandler.ts)
+		const realTime = this._options.getCurrentTime?.() ?? Date.now()
+		return realTime - this._totalFrozenDuration + (this._isFrozen ? this._freezeStartRealTime ?? 0 : 0)
+	}
+
 	// The Freeze/Continue/Seek is meant for rehearsal purposes 
 	// as a lot of equipment could give artifacts in production.
 	public freeze(): void {
@@ -325,8 +334,6 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 			this.emit('error', 'Error freezing devices:', error)
 		})
 
-		// Stop timeline resolution
-		this._stopTriggerResolveTimeline()
 
 		this.emit('info', `Timeline frozen at t=${this._freezeTimelineTime}`)
 	}
@@ -359,7 +366,8 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 		this._freezeTimelineTime = undefined
 	}
 
-	public seek(seconds: number): void {
+	public jumpto(seconds: number): void {
+		this.freeze()
 		const seekAmount = seconds * 1000
 
 		// Update the frozen timeline time if we're currently frozen
@@ -372,14 +380,16 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 
 		this._mapAllConnections(true, async (device) => {
 				// This is to support a visual indication (black)
+				// And a fade to black in audio devices
 				// But also to hide any artifacts while seeking
+				// We need to decide the time to dip under recalculation
+				// so that the devices can prepare for the new state
+				// but also not to slow so it feels sluggish
 				await device.device.dipUnderRecalculation?.()
 		}).catch((error) => {
 			this.emit('error', 'Error dip to black on devices:', error)
 		})
-
-		// trigger immediate:
-		this.resetResolver()
+		this.continue()
 	}
 
 	/**
@@ -556,14 +566,6 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 	}
 
 	/**
-	 * To implement a Freeze a stop any planned triggers
-	 */
-	private _stopTriggerResolveTimeline() {
-		clearTimeout(this._resolveTimelineTrigger)
-		delete this._resolveTimelineTrigger
-	}
-
-	/**
 	 * Resolves the timeline for the next resolve-time, generates the commands and passes on the commands.
 	 */
 	private _resolveTimeline() {
@@ -572,7 +574,10 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 			.add(async () => {
 				return this._resolveTimelineInner()
 					.then((nextResolveTime) => {
-						this._nextResolveTime = nextResolveTime ?? 0
+						if (!this._isFrozen) {
+							// If we're not frozen, we can trigger the next resolve:
+							this._nextResolveTime = nextResolveTime ?? 0
+						}
 					})
 					.catch((e) => {
 						this.emit('error', 'Caught error in _resolveTimelineInner' + e)
@@ -592,7 +597,7 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 
 		let nextResolveTime = 0
 		let timeUntilNextResolve = LOOKAHEADTIME
-		const startTime = Date.now()
+		const startTime = this.getNowWithFreezeOffset()
 
 		const statMeasureStart: number = this._statMeasureStart
 		let statTimeStateHandled = -1
@@ -764,7 +769,7 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 				}
 			)
 
-			statTimeStateHandled = Date.now()
+			statTimeStateHandled = this.getNowWithFreezeOffset()
 
 			// Now that we've handled this point in time, it's time to determine what the next point in time is:
 			const nextEventTime: number | undefined = tlState.nextEvents[0]?.time
@@ -870,7 +875,7 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 			timelineSizeOld: this._timeline.length,
 			timelineResolved: statTimeTimelineResolved,
 			stateHandled: statTimeStateHandled,
-			done: Date.now(),
+			done: this.getNowWithFreezeOffset(),
 			estimatedResolveTime: estimatedResolveTime,
 		})
 
